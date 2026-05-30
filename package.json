@@ -4,6 +4,7 @@
   "private": true,
   "description": "Tray app wrapper for disguise remote cue",
   "main": "desktop/main.cjs",
+  "executableName": "disguise remote cue",
   "scripts": {
     "frontend:build": "npm --prefix frontend run build",
     "start": "electron .",
@@ -26,7 +27,6 @@
       "frontend/dist/**/*"
     ],
     "win": {
-      "signAndEditExecutable": false,
       "target": [
         "nsis"
       ],
@@ -36,6 +36,9 @@
       "oneClick": false,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
+      "installerIcon": "assets/app-icon.ico",
+      "uninstallerIcon": "assets/app-icon.ico",
+      "installerHeaderIcon": "assets/app-icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "menuCategory": "disguise remote cue",

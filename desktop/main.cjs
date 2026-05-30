@@ -20,6 +20,7 @@ const LEGACY_USER_DATA_DIR_NAMES = [
   'disguise remote',
   'disguise-remote',
 ]
+const APP_ICON_PATH = path.join(__dirname, '..', 'assets', 'app-icon.ico')
 
 const gotLock = app.requestSingleInstanceLock()
 
@@ -30,7 +31,7 @@ if (!gotLock) {
 app.setAppUserModelId('remote.disguise.cue')
 
 function createTrayIcon() {
-  return nativeImage.createFromPath(path.join(__dirname, '..', 'assets', 'app-icon.ico'))
+  return nativeImage.createFromPath(APP_ICON_PATH)
 }
 
 function startupPath() {
@@ -163,7 +164,7 @@ function createSettingsWindow() {
     resizable: false,
     useContentSize: true,
     title: 'disguise remote cue settings',
-    icon: path.join(__dirname, '..', 'assets', 'app-icon.ico'),
+    icon: createTrayIcon(),
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
