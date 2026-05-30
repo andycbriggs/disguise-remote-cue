@@ -195,23 +195,47 @@ export function goToTrack(transportUid, trackUid) {
   })
 }
 
-export function goToFrame(transportUid, frame) {
+export function goToFrame(transportUid, frame, playmode) {
   return postTransport('/gotoframe', {
     transports: [
       commandTransport(transportUid, {
         frame,
+        ...(playmode ? { playmode } : {}),
       }),
     ],
   })
 }
 
-export function goToCueTag(transportUid, type, tag) {
+export function goToTime(transportUid, time, playmode) {
+  return postTransport('/gototime', {
+    transports: [
+      commandTransport(transportUid, {
+        time,
+        ...(playmode ? { playmode } : {}),
+      }),
+    ],
+  })
+}
+
+export function goToSection(transportUid, section, playmode) {
+  return postTransport('/gotosection', {
+    transports: [
+      commandTransport(transportUid, {
+        section: String(section),
+        ...(playmode ? { playmode } : {}),
+      }),
+    ],
+  })
+}
+
+export function goToCueTag(transportUid, type, tag, playmode) {
   return postTransport('/gototag', {
     transports: [
       commandTransport(transportUid, {
         type: String(type).toUpperCase(),
         value: String(tag),
-        allowGlobalJump: false,
+        allowGlobalJump: true,
+        ...(playmode ? { playmode } : {}),
       }),
     ],
   })

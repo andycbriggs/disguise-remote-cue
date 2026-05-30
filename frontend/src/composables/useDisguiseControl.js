@@ -6,6 +6,8 @@ import {
   getActiveTransportControlTransports,
   goToCueTag,
   goToFrame,
+  goToSection,
+  goToTime,
   goToTrack,
   playTransport,
   setTransportBrightness,
@@ -52,6 +54,7 @@ const EMPTY_TRANSPORT = {
 
 const FRAME_RATE = 30
 const CUE_BOUNDARY_BIAS_SECONDS = 1 / FRAME_RATE
+const GO_PLAYMODE = 'PlaySection'
 const VIEW_STATE_STORAGE_KEY = 'disguise-control:view-state'
 const NUDGE_STEPS = [
   { label: '1f', frames: 1 },
@@ -175,6 +178,7 @@ function normaliseCue(cue, index, trackUid) {
   return {
     id: `${trackUid}-${index}-${tagType ?? 'cue'}-${tagValue || cue.position || sectionIndex}`,
     uid: `${trackUid}-${index}`,
+    trackUid,
     name,
     number: displayTag,
     tagType,
@@ -283,8 +287,6 @@ export function useDisguiseControl() {
   const pendingCommand = ref('')
   const renderClock = ref(Date.now())
   const nudgeStepIndex = ref(Number.isInteger(savedViewState.nudgeStepIndex) ? savedViewState.nudgeStepIndex : 0)
-  const viewedTrackByTransportId = reactive({ ...(savedViewState.viewedTrackByTransportId ?? {}) })
-  const armedCueByTrackId = reactive({ ...(savedViewState.armedCueByTrackId ?? {}) })
   const armedCueByTransportId = reactive({ ...(savedViewState.armedCueByTransportId ?? {}) })
   const cuesByTrackId = reactive({})
   const loadingCuesByTrackId = reactive({})
@@ -366,7 +368,7 @@ export function useDisguiseControl() {
         ? String(liveRender.currentTrackUid ?? live.currentTrackUid)
         : null
       const apiCurrentTrackUid = normalInfo.currentTrack?.uid ? String(normalInfo.currentTrack.uid) : null
-      const viewedTrackUid = viewedTrackByTransportId[uid] ?? liveCurrentTrackUid ?? apiCurrentTrackUid ?? tracks[0]?.id
+      const viewedTrackUid = liveCurrentTrackUid ?? apiCurrentTrackUid ?? tracks[0]?.id
       const currentTrackIndex = Math.max(
         0,
         tracks.findIndex((track) => track.id === viewedTrackUid),
@@ -454,15 +456,6 @@ export function useDisguiseControl() {
     activeTransportId.value = id
   }
 
-  function selectTrack(index) {
-    const track = activeSetlist.value.tracks[index]
-    if (!track) return
-
-    viewedTrackByTransportId[activeTransport.value.id] = track.id
-    armedCueByTrackId[track.id] = track.cues[0]?.id ?? null
-    runCommand(`track:${activeTransport.value.id}`, () => goToTrack(activeTransport.value.id, track.id))
-  }
-
   function armCue(id) {
     armedCueByTransportId[activeTransport.value.id] = id
   }
@@ -503,7 +496,27 @@ export function useDisguiseControl() {
     let didFire = false
 
     if (tagType && commandValue) {
-      didFire = await runCommand(`cue:${transport.id}`, () => goToCueTag(transport.id, tagType, commandValue))
+      didFire = await runCommand(`cue:${transport.id}`, () => goToCueTag(transport.id, tagType, commandValue, GO_PLAYMODE))
+    }
+
+    if (!didFire && cue.sectionIndex) {
+      didFire = await runCommand(`cue:${transport.id}`, async () => {
+        if (cue.trackUid && cue.trackUid !== activeTrack.value.id) {
+          await goToTrack(transport.id, cue.trackUid)
+        }
+
+        await goToSection(transport.id, cue.sectionIndex, GO_PLAYMODE)
+      })
+    }
+
+    if (!didFire && typeof cue.position === 'number') {
+      didFire = await runCommand(`cue:${transport.id}`, async () => {
+        if (cue.trackUid && cue.trackUid !== activeTrack.value.id) {
+          await goToTrack(transport.id, cue.trackUid)
+        }
+
+        await goToTime(transport.id, Math.max(0, cue.position), GO_PLAYMODE)
+      })
     }
 
     if (didFire) {
@@ -615,13 +628,11 @@ export function useDisguiseControl() {
   )
 
   watch(
-    [activeTransportId, nudgeStepIndex, viewedTrackByTransportId, armedCueByTrackId, armedCueByTransportId],
+    [activeTransportId, nudgeStepIndex, armedCueByTransportId],
     () => {
       writeViewState({
         activeTransportId: activeTransportId.value,
         nudgeStepIndex: nudgeStepIndex.value,
-        viewedTrackByTransportId: { ...viewedTrackByTransportId },
-        armedCueByTrackId: { ...armedCueByTrackId },
         armedCueByTransportId: { ...armedCueByTransportId },
       })
     },
@@ -669,7 +680,6 @@ export function useDisguiseControl() {
     lastError,
     pendingCommand,
     selectTransport,
-    selectTrack,
     armCue,
     fireCue,
     toggleEngaged,
