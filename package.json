@@ -7,7 +7,7 @@
   "scripts": {
     "frontend:build": "npm --prefix frontend run build",
     "start": "electron .",
-    "dist": "npm run frontend:build && electron-builder --win nsis",
+    "dist": "npm run frontend:build && electron-builder --win nsis --publish never",
     "pack": "npm run frontend:build && electron-builder --dir"
   },
   "devDependencies": {

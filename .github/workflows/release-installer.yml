@@ -8,10 +8,13 @@ on:
 permissions:
   contents: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-installer:
     name: Build Windows installer
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     steps:
       - name: Check out repository
