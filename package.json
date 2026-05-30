@@ -1,0 +1,44 @@
+{
+  "name": "disguise-remote-cue",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tray app wrapper for disguise remote cue",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "frontend:build": "npm --prefix frontend run build",
+    "start": "electron .",
+    "dist": "npm run frontend:build && electron-builder --win nsis",
+    "pack": "npm run frontend:build && electron-builder --dir"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "remote.disguise.cue",
+    "productName": "disguise remote cue",
+    "asar": false,
+    "icon": "assets/app-icon.ico",
+    "files": [
+      "assets/**/*",
+      "backend/**/*",
+      "desktop/**/*",
+      "frontend/dist/**/*"
+    ],
+    "win": {
+      "signAndEditExecutable": false,
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "disguise-remote-cue-setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "disguise remote cue"
+    }
+  }
+}
