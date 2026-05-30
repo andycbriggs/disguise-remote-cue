@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       - name: Install frontend dependencies
-        run: npm ci --prefix frontend
+        run: npm install --prefix frontend
 
       - name: Build installer
         run: npm run dist
