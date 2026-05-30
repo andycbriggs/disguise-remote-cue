@@ -50,7 +50,7 @@ function escapeHtml(value) {
 }
 
 function settingsErrorHtml() {
-  const port = savedSettings?.appPort || 5180
+  const port = savedSettings?.appPort || 8088
   const host = savedSettings?.appHost || '0.0.0.0'
   const message = serverError?.code === 'EADDRINUSE'
     ? `Port ${port} is already in use. disguise remote cue did not bind to ${host}:${port}.`

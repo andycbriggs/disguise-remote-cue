@@ -5,6 +5,7 @@ import { getAppSettings, saveAppSettings } from '../lib/appSettingsApi'
 const disguiseHost = ref('')
 const disguisePort = ref(80)
 const appHost = ref('0.0.0.0')
+const appPort = ref(8088)
 const runOnStartup = ref(false)
 const interfaceOptions = ref([])
 const requiresRestart = ref(false)
@@ -20,6 +21,7 @@ const currentSnapshot = computed(() =>
     disguiseHost: disguiseHost.value,
     disguisePort: Number(disguisePort.value),
     appHost: appHost.value,
+    appPort: Number(appPort.value),
     runOnStartup: runOnStartup.value,
   }),
 )
@@ -31,6 +33,7 @@ function applySettings(data) {
   disguiseHost.value = settings.disguiseHost ?? ''
   disguisePort.value = settings.disguisePort ?? 80
   appHost.value = settings.appHost ?? '0.0.0.0'
+  appPort.value = settings.appPort ?? 8088
   runOnStartup.value = Boolean(settings.runOnStartup)
   interfaceOptions.value = data.interfaceOptions ?? []
   requiresRestart.value = Boolean(data.requiresRestart)
@@ -62,6 +65,7 @@ async function saveSettings() {
       disguiseHost: disguiseHost.value,
       disguisePort: Number(disguisePort.value),
       appHost: appHost.value,
+      appPort: Number(appPort.value),
       runOnStartup: runOnStartup.value,
     }))
   } catch (error) {
@@ -106,7 +110,7 @@ onUnmounted(() => {
             spellcheck="false"
             placeholder="192.168.30.101"
           />
-          <small>Host</small>
+          <small>Disguise IP</small>
         </label>
 
         <label class="transport-select settings-control settings-input-control">
@@ -118,7 +122,19 @@ onUnmounted(() => {
             max="65535"
             inputmode="numeric"
           />
-          <small>Port</small>
+          <small>Disguise port</small>
+        </label>
+
+        <label class="transport-select settings-control settings-input-control">
+          <input
+            v-model="appPort"
+            aria-label="Local port"
+            type="number"
+            min="1"
+            max="65535"
+            inputmode="numeric"
+          />
+          <small>Local port</small>
         </label>
 
         <div class="settings-select-list" role="listbox" aria-label="Bind interface">
@@ -146,7 +162,7 @@ onUnmounted(() => {
       </div>
 
       <div class="settings-status" aria-live="polite">
-        <p v-if="requiresRestart" class="settings-note">Restart the tray app to apply the bind interface change.</p>
+        <p v-if="requiresRestart" class="settings-note">Restart the tray app to apply local server changes.</p>
         <p v-if="lastError" class="empty-state">{{ lastError }}</p>
         <p v-if="isLoading" class="empty-state">Loading settings.</p>
         <p v-if="isSaving" class="settings-save-state">Saving.</p>

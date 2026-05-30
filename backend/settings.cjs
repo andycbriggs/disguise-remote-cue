@@ -5,7 +5,7 @@ const DEFAULT_SETTINGS = {
   disguiseHost: '192.168.30.101',
   disguisePort: 80,
   appHost: '0.0.0.0',
-  appPort: 5180,
+  appPort: 8088,
   runOnStartup: false,
 }
 
