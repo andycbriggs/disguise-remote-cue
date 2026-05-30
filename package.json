@@ -1,6 +1,6 @@
 {
   "name": "disguise-remote-cue",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "Tray app wrapper for disguise remote cue",
   "main": "desktop/main.cjs",
@@ -35,9 +35,10 @@
     "nsis": {
       "oneClick": false,
       "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
+      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
+      "menuCategory": "disguise remote cue",
       "shortcutName": "disguise remote cue"
     }
   }
