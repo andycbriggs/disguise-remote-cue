@@ -2,7 +2,7 @@ const fs = require('node:fs')
 const path = require('node:path')
 
 const DEFAULT_SETTINGS = {
-  disguiseHost: '192.168.30.101',
+  disguiseHost: '127.0.0.1',
   disguisePort: 80,
   appHost: '0.0.0.0',
   appPort: 8088,

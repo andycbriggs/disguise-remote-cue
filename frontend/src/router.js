@@ -8,9 +8,10 @@ import SettingsPage from './pages/SettingsPage.vue'
 export const router = createRouter({
   history: createWebHistory(),
   routes: [
-    { path: '/', name: 'run', component: RunPage },
+    { path: '/', name: 'health', component: HealthPage },
+    { path: '/run', name: 'run', component: RunPage },
     { path: '/controls', name: 'controls', component: ControlsPage },
-    { path: '/health', name: 'health', component: HealthPage },
+    { path: '/health', redirect: '/' },
     { path: '/notes', name: 'notes', component: NotesPage },
     { path: '/settings', name: 'settings', component: SettingsPage },
   ],

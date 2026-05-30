@@ -174,11 +174,13 @@ function createDisguiseControlServer(options) {
 
   const server = http.createServer(async (request, response) => {
     if (request.url === '/app/settings' && request.method === 'GET') {
+      const runtimeSettings = getRuntimeSettings()
       json(response, 200, {
         settings: {
           ...settings,
-          ...getRuntimeSettings(),
+          runOnStartup: runtimeSettings.runOnStartup ?? settings.runOnStartup,
         },
+        appVersion: runtimeSettings.appVersion,
         interfaceOptions: interfaceOptions(),
         localUrls: localNetworkUrls(activePort, activeHost),
         requiresRestart: settings.appHost !== activeHost || settings.appPort !== activePort,
@@ -191,11 +193,13 @@ function createDisguiseControlServer(options) {
         const body = JSON.parse(await readBody(request))
         settings = writeSettings(settingsPath, { ...settings, ...body })
         onSettingsSaved(settings)
+        const runtimeSettings = getRuntimeSettings()
         json(response, 200, {
           settings: {
             ...settings,
-            ...getRuntimeSettings(),
+            runOnStartup: runtimeSettings.runOnStartup ?? settings.runOnStartup,
           },
+          appVersion: runtimeSettings.appVersion,
           interfaceOptions: interfaceOptions(),
           localUrls: localNetworkUrls(activePort, activeHost),
           requiresRestart: settings.appHost !== activeHost || settings.appPort !== activePort,

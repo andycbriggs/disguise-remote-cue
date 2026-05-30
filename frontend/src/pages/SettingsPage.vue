@@ -14,6 +14,7 @@ const isSaving = ref(false)
 const lastError = ref('')
 const savedSnapshot = ref('')
 const hasLoaded = ref(false)
+const appVersion = ref('')
 let saveTimer = null
 
 const currentSnapshot = computed(() =>
@@ -37,6 +38,7 @@ function applySettings(data) {
   runOnStartup.value = Boolean(settings.runOnStartup)
   interfaceOptions.value = data.interfaceOptions ?? []
   requiresRestart.value = Boolean(data.requiresRestart)
+  appVersion.value = data.appVersion ?? ''
   savedSnapshot.value = currentSnapshot.value
 }
 
@@ -108,7 +110,7 @@ onUnmounted(() => {
             aria-label="Host"
             autocomplete="off"
             spellcheck="false"
-            placeholder="192.168.30.101"
+            placeholder="127.0.0.1"
           />
           <small>Disguise IP</small>
         </label>
@@ -166,6 +168,7 @@ onUnmounted(() => {
         <p v-if="lastError" class="empty-state">{{ lastError }}</p>
         <p v-if="isLoading" class="empty-state">Loading settings.</p>
         <p v-if="isSaving" class="settings-save-state">Saving.</p>
+        <p v-if="appVersion" class="settings-version">Version {{ appVersion }}</p>
       </div>
     </section>
   </main>

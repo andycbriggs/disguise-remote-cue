@@ -1,3 +1,4 @@
+const fs = require('node:fs')
 const path = require('node:path')
 const { app, BrowserWindow, Menu, Tray, nativeImage } = require('electron')
 const { createDisguiseControlServer } = require('../backend/server.cjs')
@@ -12,6 +13,13 @@ let savedSettings = null
 
 const SETTINGS_WINDOW_WIDTH = 420
 const SETTINGS_WINDOW_HEIGHT = 680
+const USER_DATA_DIR_NAME = 'disguise-remote-cue'
+const SETTINGS_FILE_NAME = 'settings.json'
+const LEGACY_USER_DATA_DIR_NAMES = [
+  'disguise remote cue',
+  'disguise remote',
+  'disguise-remote',
+]
 
 const gotLock = app.requestSingleInstanceLock()
 
@@ -38,6 +46,25 @@ function applyStartupSetting(settings) {
 
 function startupEnabled() {
   return app.getLoginItemSettings({ path: startupPath() }).openAtLogin
+}
+
+function configureUserDataPath() {
+  const userDataPath = path.join(app.getPath('appData'), USER_DATA_DIR_NAME)
+  const settingsPath = path.join(userDataPath, SETTINGS_FILE_NAME)
+
+  if (!fs.existsSync(settingsPath)) {
+    const legacySettingsPath = LEGACY_USER_DATA_DIR_NAMES
+      .map((dirName) => path.join(app.getPath('appData'), dirName, SETTINGS_FILE_NAME))
+      .find((candidate) => fs.existsSync(candidate))
+
+    if (legacySettingsPath) {
+      fs.mkdirSync(userDataPath, { recursive: true })
+      fs.copyFileSync(legacySettingsPath, settingsPath)
+    }
+  }
+
+  app.setPath('userData', userDataPath)
+  return userDataPath
 }
 
 function escapeHtml(value) {
@@ -178,7 +205,7 @@ function rebuildTrayMenu() {
 
 async function start() {
   const distPath = path.join(__dirname, '..', 'frontend', 'dist')
-  const settingsPath = path.join(app.getPath('userData'), 'settings.json')
+  const settingsPath = path.join(configureUserDataPath(), SETTINGS_FILE_NAME)
   const settings = readSettings(settingsPath)
   savedSettings = settings
 
@@ -189,6 +216,7 @@ async function start() {
     settingsPath,
     getRuntimeSettings: () => ({
       runOnStartup: startupEnabled(),
+      appVersion: app.getVersion(),
     }),
     onSettingsSaved: applyStartupSetting,
   })

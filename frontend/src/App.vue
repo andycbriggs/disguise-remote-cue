@@ -14,10 +14,10 @@ provide('controlStore', controlStore)
 <template>
   <div class="app-layout">
     <nav v-if="showNav" class="app-nav" aria-label="Primary">
-      <RouterLink class="nav-tab" to="/health" aria-label="Health" title="Health">
+      <RouterLink class="nav-tab" to="/" aria-label="Health" title="Health">
         <Activity />
       </RouterLink>
-      <RouterLink class="nav-tab" to="/" aria-label="Run" title="Run">
+      <RouterLink class="nav-tab" to="/run" aria-label="Run" title="Run">
         <ListVideo />
       </RouterLink>
       <RouterLink class="nav-tab" to="/controls" aria-label="Controls" title="Controls">

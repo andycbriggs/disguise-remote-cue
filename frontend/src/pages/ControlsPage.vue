@@ -3,7 +3,6 @@ import { inject, ref } from 'vue'
 import {
   ArrowDown,
   ArrowUp,
-  ChevronDown,
   Hand,
   Play,
   Power,
@@ -83,14 +82,13 @@ function selectNudgeStepAndClose(index) {
         </div>
         <div class="step-size-wrap">
           <button
-            class="step-size-button"
+            class="step-size-trigger"
             type="button"
             :title="`Nudge size ${currentNudgeStep.label}`"
+            aria-label="Step size"
             @click="nudgeMenuOpen = !nudgeMenuOpen"
           >
-            <span>{{ currentNudgeStep.label }}</span>
-            <small>Step</small>
-            <ChevronDown />
+            {{ currentNudgeStep.label }}
           </button>
 
           <div v-if="nudgeMenuOpen" class="selector-menu step-size-menu" role="listbox" aria-label="Nudge size">
