@@ -1,6 +1,6 @@
 {
   "name": "disguise-remote-cue",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "description": "Tray app wrapper for disguise remote cue",
   "main": "desktop/main.cjs",

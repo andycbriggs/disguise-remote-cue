@@ -90,7 +90,7 @@ function selectTransportAndClose(id) {
           @click="armCue(cue.id)"
         >
           <span
-            v-if="cue.live && activeTransport.playing"
+            v-if="cue.live && cue.remainingLabel"
             class="cue-progress"
             :style="{ width: `${cue.progressPercent}%` }"
           ></span>
@@ -98,7 +98,7 @@ function selectTransportAndClose(id) {
           <span class="cue-content">
             <strong>{{ cue.name }}</strong>
           </span>
-          <span v-if="cue.live && activeTransport.playing && cue.remainingLabel" class="cue-countdown">
+          <span v-if="cue.live && cue.remainingLabel" class="cue-countdown">
             -{{ cue.remainingLabel }}
           </span>
         </button>

@@ -237,7 +237,7 @@ function enrichCuesWithPlayback(cues, playheadLocation, isLiveTrack, trackLength
     const duration = end - start
     const timeLive = boundarySafePlayhead >= start && boundarySafePlayhead < end
     const sectionLive = sectionIndex ? cue.sectionIndex === sectionIndex : false
-    const live = isHolding && sectionIndex ? sectionLive : timeLive
+    const live = sectionIndex ? sectionLive : timeLive
     const progressPercent = live && !isHolding && Number.isFinite(duration) && duration > 0
       ? Math.max(0, Math.min(100, ((playheadLocation - start) / duration) * 100))
       : 0
