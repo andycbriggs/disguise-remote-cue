@@ -61,6 +61,17 @@ async function getStatus(path) {
   return data
 }
 
+async function getTolerantStatus(path) {
+  const response = await fetch(`${STATUS_API}${path}`)
+  const data = await readJson(response)
+
+  if (!response.ok && !Array.isArray(data?.result)) {
+    throw new Error(data?.status?.message || `Status API failed: ${response.status}`)
+  }
+
+  return data
+}
+
 async function getNotes(path) {
   const response = await fetch(`${NOTES_API}${path}`)
   const data = await readJson(response)
@@ -150,7 +161,7 @@ export async function getTransportControlCues(trackUid) {
 }
 
 export async function getHealthStatus() {
-  return getStatus('/health')
+  return getTolerantStatus('/health')
 }
 
 export async function getNotesList() {

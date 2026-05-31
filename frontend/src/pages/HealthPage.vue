@@ -54,7 +54,7 @@ async function refreshHealth() {
 
   try {
     const data = await getHealthStatus()
-    machines.value = data.result ?? []
+    machines.value = Array.isArray(data.result) ? data.result : []
   } catch (error) {
     lastError.value = error instanceof Error ? error.message : 'Failed to load health'
   } finally {
@@ -103,7 +103,7 @@ onUnmounted(() => {
       </article>
 
       <p v-if="!isLoading && machines.length === 0" class="empty-state">No health data.</p>
-      <p v-if="lastError" class="empty-state">{{ lastError }}</p>
+      <p v-if="lastError && machines.length === 0" class="empty-state">{{ lastError }}</p>
     </section>
   </main>
 </template>
