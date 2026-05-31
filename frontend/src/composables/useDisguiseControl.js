@@ -150,6 +150,29 @@ function formatTimecode(seconds, fps = 30) {
   return [hours, minutes, secs, frames].map((part) => String(part).padStart(2, '0')).join(':')
 }
 
+function formatDuration(seconds) {
+  if (typeof seconds !== 'number' || !Number.isFinite(seconds) || seconds < 0) {
+    return ''
+  }
+
+  const totalSeconds = Math.ceil(seconds)
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const secs = totalSeconds % 60
+  const parts = []
+
+  if (hours > 0) {
+    parts.push(`${hours}h`)
+  }
+
+  if (hours > 0 || minutes > 0) {
+    parts.push(`${minutes}m`)
+  }
+
+  parts.push(`${secs}s`)
+  return parts.join(' ')
+}
+
 function normaliseTrack(track, index, cuesByTrackId) {
   const uid = String(track.uid)
 
@@ -188,6 +211,7 @@ function normaliseCue(cue, index, trackUid) {
     current: Boolean(cue.current),
     live: Boolean(cue.current),
     progressPercent: 0,
+    remainingLabel: '',
   }
 }
 
@@ -197,45 +221,35 @@ function enrichCuesWithPlayback(cues, playheadLocation, isLiveTrack, trackLength
       ...cue,
       live: Boolean(cue.current),
       progressPercent: 0,
+      remainingLabel: '',
     }))
   }
 
-  if (currentSectionIndex !== null && currentSectionIndex !== undefined) {
-    const sectionIndex = String(currentSectionIndex)
-
-    return cues.map((cue, index) => {
-      const nextCue = cues[index + 1]
-      const start = cue.position ?? 0
-      const end = nextCue?.position ?? trackLength ?? Infinity
-      const duration = end - start
-      const live = cue.sectionIndex === sectionIndex
-      const progressPercent = live && !isHolding && Number.isFinite(duration) && duration > 0
-        ? Math.max(0, Math.min(100, ((playheadLocation - start) / duration) * 100))
-        : 0
-
-      return {
-        ...cue,
-        live,
-        progressPercent,
-      }
-    })
-  }
+  const sectionIndex = currentSectionIndex !== null && currentSectionIndex !== undefined
+    ? String(currentSectionIndex)
+    : null
+  const boundarySafePlayhead = Math.max(0, playheadLocation - CUE_BOUNDARY_BIAS_SECONDS)
 
   return cues.map((cue, index) => {
     const nextCue = cues[index + 1]
     const start = cue.position ?? 0
     const end = nextCue?.position ?? trackLength ?? Infinity
     const duration = end - start
-    const boundarySafePlayhead = Math.max(0, playheadLocation - CUE_BOUNDARY_BIAS_SECONDS)
-    const live = boundarySafePlayhead >= start && boundarySafePlayhead < end
-    const progressPercent = live && Number.isFinite(duration) && duration > 0
-      ? Math.max(0, Math.min(100, ((boundarySafePlayhead - start) / duration) * 100))
+    const timeLive = boundarySafePlayhead >= start && boundarySafePlayhead < end
+    const sectionLive = sectionIndex ? cue.sectionIndex === sectionIndex : false
+    const live = isHolding && sectionIndex ? sectionLive : timeLive
+    const progressPercent = live && !isHolding && Number.isFinite(duration) && duration > 0
+      ? Math.max(0, Math.min(100, ((playheadLocation - start) / duration) * 100))
       : 0
+    const remainingLabel = live && !isHolding && Number.isFinite(end)
+      ? formatDuration(end - playheadLocation)
+      : ''
 
     return {
       ...cue,
       live,
       progressPercent,
+      remainingLabel,
     }
   })
 }
@@ -359,7 +373,7 @@ export function useDisguiseControl() {
       const liveRender = liveRenderByTransportId.value[uid] ?? {}
       const playmode = liveRender.playmode ?? live.playmode ?? normalInfo.playmode ?? ''
       const statusString = liveRender.statusString ?? live.statusString ?? ''
-      const holdingAtSection = isHoldingAtSection(playmode) || isHoldingAtSection(statusString)
+      const holdingAtSection = isHoldingAtSection(playmode)
       const playing = isPlayState(playmode) || holdingAtSection
       const playheadLocation = predictedPlayhead(uid, liveRender.playheadLocation, isAdvancingPlayhead(playmode) && !holdingAtSection)
       const setlist = normalInfo.setlist ?? normalInfo.setList ?? EMPTY_SETLIST

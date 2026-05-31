@@ -98,6 +98,9 @@ function selectTransportAndClose(id) {
           <span class="cue-content">
             <strong>{{ cue.name }}</strong>
           </span>
+          <span v-if="cue.live && activeTransport.playing && cue.remainingLabel" class="cue-countdown">
+            -{{ cue.remainingLabel }}
+          </span>
         </button>
       </template>
 
